@@ -129,6 +129,9 @@ impl Drop for Event {
     }
 }
 
+unsafe impl Send for Event {}
+unsafe impl Sync for Event {}
+
 struct Inner {
     handle: libc::HANDLE,
     lock: Mutex<()>,
@@ -219,9 +222,6 @@ pub struct UnixStream {
     read_deadline: u64,
     write_deadline: u64,
 }
-
-unsafe impl Send for UnixStream {}
-unsafe impl Sync for UnixStream {}
 
 impl UnixStream {
     fn try_connect(p: *const u16) -> Option<libc::HANDLE> {
@@ -615,16 +615,10 @@ pub struct UnixAcceptor {
     deadline: u64,
 }
 
-unsafe impl Send for UnixAcceptor {}
-unsafe impl Sync for UnixAcceptor {}
-
 struct AcceptorState {
     abort: Event,
     closed: AtomicBool,
 }
-
-unsafe impl Send for AcceptorState {}
-unsafe impl Sync for AcceptorState {}
 
 impl UnixAcceptor {
     pub fn accept(&mut self) -> IoResult<UnixStream> {
